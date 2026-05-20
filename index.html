@@ -1222,32 +1222,44 @@ function renderNutricion(){
   if(!shopLists.length){
     html+=`<div class="empty" style="padding:20px 0">Sin listas todavía</div>`;
   } else {
-    shopLists.slice().reverse().forEach(l=>{
-      const total=l.items.reduce((s,i)=>s+i.price,0);
-      const checked=l.items.filter(i=>i.checked).length;
-      html+=`
-        <div class="nut-card" onclick="nutView=${l.id};renderContent()" style="cursor:pointer" onmouseenter="this.style.borderColor='#00E5A030'" onmouseleave="this.style.borderColor='#222236'">
-          <div class="nut-header">
-            <div>
-              <div class="nut-list-name">${l.name}</div>
-              <div class="nut-list-meta">${l.date} · ${l.items.length} items · ${checked}/${l.items.length} tachados</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="nut-total">$${total.toLocaleString('es-AR')}</div>
-              <div style="color:#00E5A0;font-size:18px;opacity:.5">›</div>
-            </div>
+    // Get active list id from localStorage or use first
+    const activeListId = parseInt(localStorage.getItem('finanzas_active_list')||shopLists[0].id);
+    const activeList = shopLists.find(l=>l.id===activeListId) || shopLists[0];
+    const total=activeList.items.reduce((s,i)=>s+i.price,0);
+    const checked=activeList.items.filter(i=>i.checked).length;
+
+    // Selector de lista
+    if(shopLists.length>1){
+      html+=`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px">
+        ${shopLists.map(l=>`<button onclick="localStorage.setItem('finanzas_active_list','${l.id}');renderContent()"
+          style="flex-shrink:0;padding:5px 14px;border-radius:999px;border:1px solid ${l.id===activeList.id?'#00E5A0':'#222236'};background:${l.id===activeList.id?'#00E5A015':'transparent'};color:${l.id===activeList.id?'#00E5A0':'#6060A0'};font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap">
+          ${l.name}
+        </button>`).join('')}
+      </div>`;
+    }
+
+    html+=`
+      <div class="nut-card" onclick="nutView=${activeList.id};renderContent()" style="cursor:pointer" onmouseenter="this.style.borderColor='#00E5A030'" onmouseleave="this.style.borderColor='#222236'">
+        <div class="nut-header">
+          <div>
+            <div class="nut-list-name">${activeList.name}</div>
+            <div class="nut-list-meta">${activeList.date} · ${activeList.items.length} items · ${checked}/${activeList.items.length} tachados</div>
           </div>
-          <div style="background:#1A1A2A;border-radius:999px;height:4px">
-            <div style="width:${l.items.length>0?(checked/l.items.length*100).toFixed(0):0}%;background:#00E5A0;height:100%;border-radius:999px;transition:width .4s ease"></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="nut-total">$${total.toLocaleString('es-AR')}</div>
+            <div style="color:#00E5A0;font-size:18px;opacity:.5">›</div>
           </div>
-        </div>`;
-    });
+        </div>
+        <div style="background:#1A1A2A;border-radius:999px;height:4px">
+          <div style="width:${activeList.items.length>0?(checked/activeList.items.length*100).toFixed(0):0}%;background:#00E5A0;height:100%;border-radius:999px;transition:width .4s ease"></div>
+        </div>
+      </div>`;
   }
 
   // Protocolo nutricional
   html+=`
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:10px">
-      <div style="font-size:10px;color:#C084FC;letter-spacing:.1em;font-weight:600">PROTOCOLO NUTRICIONAL</div>
+      <div style="font-size:10px;color:#C084FC;letter-spacing:.1em;font-weight:600">PROTOCOLO NUTRICIONAL DIARIO</div>
       <button class="nut-add-btn" style="border-color:#C084FC20;color:#C084FC" onclick="openProtoModal()">+ agregar</button>
     </div>
     <div class="nut-card">`;
@@ -1255,20 +1267,31 @@ function renderNutricion(){
   if(!protoItems.length){
     html+=`<div style="font-size:12px;color:#3A3A5A;text-align:center;padding:16px 0">Sin alimentos cargados</div>`;
   } else {
-    protoItems.forEach(p=>{
-      html+=`
-        <div class="proto-item">
-          <div class="proto-dot"></div>
-          <div class="proto-info">
-            <div class="proto-name">${p.name}</div>
-            <div class="proto-detail">${p.qty} · ${p.freq}${p.note?' · '+p.note:''}</div>
-          </div>
-          <div style="display:flex;gap:4px">
-            <button class="nut-action-btn" onclick="event.stopPropagation();openProtoModal(${p.id})">✎</button>
-            <button class="nut-action-btn" style="color:#FF5C5C66;border-color:#FF5C5C20" onclick="event.stopPropagation();deleteProto(${p.id})">×</button>
-          </div>
-        </div>`;
-    });
+    const dailyKeywords = ['diario','daily','todos los días','cada día'];
+    const daily = protoItems.filter(p=>dailyKeywords.some(k=>p.freq.toLowerCase().includes(k)));
+    const weekly = protoItems.filter(p=>!dailyKeywords.some(k=>p.freq.toLowerCase().includes(k)));
+
+    const renderProtoItem = (p) => `
+      <div class="proto-item">
+        <div class="proto-dot" style="background:${dailyKeywords.some(k=>p.freq.toLowerCase().includes(k))?'#C084FC':'#FFD166'}"></div>
+        <div class="proto-info">
+          <div class="proto-name">${p.name}</div>
+          <div class="proto-detail">${p.qty} · ${p.freq}${p.note?' · '+p.note:''}</div>
+        </div>
+        <div style="display:flex;gap:4px">
+          <button class="nut-action-btn" onclick="event.stopPropagation();openProtoModal(${p.id})">✎</button>
+          <button class="nut-action-btn" style="color:#FF5C5C66;border-color:#FF5C5C20" onclick="event.stopPropagation();deleteProto(${p.id})">×</button>
+        </div>
+      </div>`;
+
+    if(daily.length){
+      html+=`<div style="font-size:9px;color:#C084FC;letter-spacing:.1em;font-weight:600;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #1A1A2A">DIARIO</div>`;
+      daily.forEach(p=>{ html+=renderProtoItem(p); });
+    }
+    if(weekly.length){
+      html+=`<div style="font-size:9px;color:#FFD166;letter-spacing:.1em;font-weight:600;margin-top:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #1A1A2A">SEMANAL</div>`;
+      weekly.forEach(p=>{ html+=renderProtoItem(p); });
+    }
   }
   html+=`</div>`;
 
@@ -1756,3 +1779,4 @@ render();
 </script>
 </body>
 </html>
+
