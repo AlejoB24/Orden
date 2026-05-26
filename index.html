@@ -242,6 +242,30 @@ select option{background:#12121E}
 .peso-bar{border-radius:4px 4px 0 0;background:#C084FC;min-width:6px;flex:1;transition:height .3s ease}
 .peso-label{font-size:8px;color:#3A3A5A;text-align:center;margin-top:3px}
 
+/* PROXIMAS COMPRAS */
+.prox-card{background:#12121E;border-radius:14px;border:1px solid #222236;padding:14px 16px;margin-bottom:8px;transition:border-color .2s}
+.prox-priority-alta{border-left:3px solid #FF5C5C}
+.prox-priority-media{border-left:3px solid #FFD166}
+.prox-priority-baja{border-left:3px solid #7B9CFF}
+.prox-badge{font-size:9px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:999px}
+.prox-name{font-size:14px;font-weight:600;color:#E0E0F8;margin:6px 0 3px}
+.prox-detail{font-size:11px;color:#5050A0}
+.prox-actions{display:flex;gap:6px;margin-top:10px}
+.prox-btn-ok{background:#00E5A015;border:1px solid #00E5A030;border-radius:8px;color:#00E5A0;font-size:11px;padding:6px 12px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s}
+.prox-btn-ok:hover{background:#00E5A025}
+.prox-btn-edit{background:none;border:1px solid #252540;border-radius:8px;color:#5050A0;font-size:11px;padding:6px 10px;cursor:pointer;font-family:'DM Mono',monospace}
+.prox-btn-del{background:none;border:1px solid #3A1A1A;border-radius:8px;color:#FF5C5C66;font-size:11px;padding:6px 10px;cursor:pointer;font-family:'DM Mono',monospace}
+
+/* PRÓXIMAS COMPRAS */
+.prox-card{background:#12121E;border-radius:14px;border:1px solid #222236;padding:14px 16px;margin-bottom:8px;transition:all .2s}
+.prox-priority{font-size:9px;font-weight:700;letter-spacing:.1em;margin-bottom:6px}
+.prox-name{font-size:14px;font-weight:600;color:#E0E0F8;margin-bottom:3px}
+.prox-meta{font-size:11px;color:#5050A0}
+.prox-actions{display:flex;gap:6px;margin-top:10px}
+.prox-done-btn{background:#00E5A015;border:1px solid #00E5A030;border-radius:8px;color:#00E5A0;cursor:pointer;padding:6px 12px;font-size:11px;font-family:'DM Mono',monospace;transition:all .2s;flex:1;text-align:center}
+.prox-edit-btn{background:#1A1A2A;border:1px solid #252540;border-radius:8px;color:#6060A0;cursor:pointer;padding:6px 10px;font-size:11px;font-family:'DM Mono',monospace}
+.prox-del-btn{background:none;border:1px solid #3A1A1A;border-radius:8px;color:#FF5C5C66;cursor:pointer;padding:6px 10px;font-size:11px;font-family:'DM Mono',monospace}
+
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1A1A2A;border:1px solid #3A3A60;color:#C0C0F0;padding:10px 20px;border-radius:999px;font-size:12px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -376,6 +400,50 @@ select option{background:#12121E}
     <div class="modal-row">
       <button class="modal-cancel" onclick="closeSubitemModal()">Cancelar</button>
       <button class="modal-del" style="background:#00E5A0;box-shadow:0 4px 16px #00E5A044;color:#08080E" onclick="saveSubitem()">GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRÓXIMA COMPRA MODAL -->
+<div class="overlay" id="prox-modal" style="display:none" onclick="closeProximaModal()">
+  <div class="rec-modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="prox-modal-title">Nueva compra planeada</div>
+    <div class="modal-sub">Planificá tus próximas inversiones</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+      <div><div class="field-label">NOMBRE</div><input type="text" id="prox-nombre" placeholder="ej: Remeras Pima 40/1"/></div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><div class="field-label">MONTO</div><input type="number" inputmode="decimal" id="prox-monto" placeholder="0"/></div>
+        <div><div class="field-label">MONEDA</div>
+          <select id="prox-cur">
+            <option value="ARS">ARS</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+      <div><div class="field-label">FECHA OBJETIVO</div><input type="date" id="prox-fecha"/></div>
+      <div><div class="field-label">CATEGORÍA</div>
+        <select id="prox-cat">
+          <option value="Ropa">Ropa</option>
+          <option value="Herramientas">Herramientas</option>
+          <option value="Inversión">Inversión</option>
+          <option value="Tecnología">Tecnología</option>
+          <option value="Hogar">Hogar</option>
+          <option value="Salud">Salud</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div><div class="field-label">PRIORIDAD</div>
+        <select id="prox-prio">
+          <option value="alta">🔴 Alta</option>
+          <option value="media" selected>🟡 Media</option>
+          <option value="baja">🔵 Baja</option>
+        </select>
+      </div>
+      <div><div class="field-label">NOTA (opcional)</div><input type="text" id="prox-nota" placeholder="ej: Para el trabajo de campo"/></div>
+    </div>
+    <div class="modal-row">
+      <button class="modal-cancel" onclick="closeProximaModal()">Cancelar</button>
+      <button class="modal-del" style="background:#FFD166;box-shadow:0 4px 16px #FFD16644;color:#08080E" onclick="saveProxima()">GUARDAR</button>
     </div>
   </div>
 </div>
@@ -671,6 +739,9 @@ function renderDashboard(){
     </div>`;
   }
   if(!list.length){const label=state.day?`el ${state.day} de ${MONTHS[state.month]}`:`en ${MONTHS[state.month]}`;html+=`<div class="empty">Sin movimientos ${label}</div>`;}
+
+  // Próximas compras
+  html+=renderProximas();
 
   // Exportar PDF — bottom
   html+=`<button onclick="exportPDF()" style="width:100%;background:#12121E;border:1px solid #FFD16630;border-radius:14px;padding:14px;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#FFD166;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-top:4px" onmouseenter="this.style.background='#1A1A2A'" onmouseleave="this.style.background='#12121E'">
@@ -1743,6 +1814,120 @@ function exportPDF(){
   a.click();
   URL.revokeObjectURL(url);
   showToast('✓ Resumen exportado');
+}
+
+
+// ── PRÓXIMAS COMPRAS ──
+function loadProximas(){ try{return JSON.parse(localStorage.getItem('finanzas_proximas')||'[]')}catch(e){return[]} }
+function saveProximas(d){ localStorage.setItem('finanzas_proximas',JSON.stringify(d)) }
+let proximas = loadProximas();
+
+const PROX_CATS = ['Ropa','Herramientas','Inversión','Tecnología','Hogar','Salud','Otro'];
+const PROX_PRIOS = ['Alta','Media','Baja'];
+
+function renderProximas(){
+  const pending = proximas.filter(p=>!p.done).sort((a,b)=>{
+    const po={alta:0,media:1,baja:2};
+    if(po[a.prioridad]!==po[b.prioridad]) return po[a.prioridad]-po[b.prioridad];
+    return (a.fecha||'9999').localeCompare(b.fecha||'9999');
+  });
+  const done = proximas.filter(p=>p.done);
+
+  let html=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:10px;color:#FFD166;letter-spacing:.1em;font-weight:600">PRÓXIMAS COMPRAS · ${pending.length} pendientes</div>
+      <button class="nut-add-btn" style="border-color:#FFD16620;color:#FFD166" onclick="openProximaModal()">+ agregar</button>
+    </div>`;
+
+  const PRIO_COLOR={alta:'#FF5C5C',media:'#FFD166',baja:'#7B9CFF'};
+  const PRIO_LABEL={alta:'ALTA',media:'MEDIA',baja:'BAJA'};
+
+  if(!pending.length){
+    html+=`<div style="background:#12121E;border-radius:14px;border:1px solid #222236;padding:16px;text-align:center;font-size:12px;color:#3A3A5A">Sin compras planeadas</div>`;
+  } else {
+    pending.forEach(p=>{
+      const color=PRIO_COLOR[p.prioridad]||'#FFD166';
+      const label=PRIO_LABEL[p.prioridad]||'MEDIA';
+      const dias=p.fecha?Math.ceil((new Date(p.fecha)-new Date())/(1000*60*60*24)):null;
+      const diasLabel=dias===null?'':(dias<0?`hace ${Math.abs(dias)} días`:(dias===0?'hoy':`en ${dias} días`));
+      const diasColor=dias!==null&&dias<0?'#FF5C5C':dias!==null&&dias<=7?'#FFD166':'#5050A0';
+      html+=`
+        <div class="prox-card" style="border-color:${color}20;margin-bottom:8px">
+          <div class="prox-priority" style="color:${color}">● ${label}</div>
+          <div class="prox-name">${p.nombre}</div>
+          <div class="prox-meta">${p.categoria}${p.monto?` · ${p.currency==='USD'?'U$D '+parseFloat(p.monto).toLocaleString('en-US',{minimumFractionDigits:0}):'$'+parseFloat(p.monto).toLocaleString('es-AR')}`:''} ${dias!==null?`· <span style="color:${diasColor}">${p.fecha.slice(5).replace('-','/')} ${diasLabel}</span>`:''}</div>
+          ${p.nota?`<div style="font-size:11px;color:#4040A0;margin-top:4px">${p.nota}</div>`:''}
+          <div class="prox-actions">
+            <button class="prox-done-btn" onclick="markProximaDone(${p.id})">✓ Comprado</button>
+            <button class="prox-edit-btn" onclick="openProximaModal(${p.id})">✎</button>
+            <button class="prox-del-btn" onclick="deleteProxima(${p.id})">×</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  if(done.length){
+    html+=`<div style="font-size:10px;color:#3A3A5A;letter-spacing:.1em;margin-top:12px;margin-bottom:8px">COMPLETADAS (${done.length})</div>`;
+    done.slice(-3).reverse().forEach(p=>{
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0E0E18;border-radius:10px;border:1px solid #1A1A2A;margin-bottom:6px;opacity:.6">
+        <div style="font-size:12px;color:#5050A0;text-decoration:line-through">${p.nombre}</div>
+        <button onclick="deleteProxima(${p.id})" style="background:none;border:none;color:#3A3A5A;cursor:pointer;font-size:16px">×</button>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+function markProximaDone(id){
+  const p=proximas.find(x=>x.id===id);
+  if(!p) return;
+  // Ask if want to register as transaction
+  const registrar=confirm(`¿Registrar "${p.nombre}" como movimiento en Finanzas?`);
+  if(registrar && p.monto){
+    // Map category to CATS
+    const catMap={'Ropa':'estilo','Herramientas':'estilo','Inversión':'inversion','Tecnología':'estilo','Hogar':'estilo','Salud':'estilo','Otro':'gasto'};
+    const subcatMap={'Ropa':'Ropa','Herramientas':'Servicios','Inversión':'Otro activo','Tecnología':'Servicios','Hogar':'Servicios','Salud':'Suplementos','Otro':'Otro gasto'};
+    const tx={id:Date.now(),type:catMap[p.categoria]||'gasto',subcat:subcatMap[p.categoria]||'Otro gasto',amount:parseFloat(p.monto),currency:p.currency||'ARS',note:p.nombre+(p.nota?' — '+p.nota:''),date:new Date().toISOString().slice(0,10)};
+    transactions.push(tx);saveTx(transactions);
+    showToast('✓ Registrado en finanzas');
+  }
+  proximas=proximas.map(x=>x.id===id?{...x,done:true}:x);
+  saveProximas(proximas);renderContent();
+}
+function deleteProxima(id){ proximas=proximas.filter(x=>x.id!==id);saveProximas(proximas);renderContent(); }
+
+function openProximaModal(id=null){
+  editProximaId=id;
+  const p=id?proximas.find(x=>x.id===id):null;
+  document.getElementById('prox-nombre').value=p?p.nombre:'';
+  document.getElementById('prox-monto').value=p&&p.monto?p.monto:'';
+  document.getElementById('prox-fecha').value=p?p.fecha:'';
+  document.getElementById('prox-cat').value=p?p.categoria:'Ropa';
+  document.getElementById('prox-prio').value=p?p.prioridad:'media';
+  document.getElementById('prox-cur').value=p?p.currency:'ARS';
+  document.getElementById('prox-nota').value=p?p.nota:'';
+  document.getElementById('prox-modal-title').textContent=id?'Editar compra':'Nueva compra planeada';
+  document.getElementById('prox-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('prox-nombre').focus(),100);
+}
+function closeProximaModal(){ document.getElementById('prox-modal').style.display='none'; }
+function saveProxima(){
+  const nombre=document.getElementById('prox-nombre').value.trim();
+  const monto=document.getElementById('prox-monto').value;
+  const fecha=document.getElementById('prox-fecha').value;
+  const categoria=document.getElementById('prox-cat').value;
+  const prioridad=document.getElementById('prox-prio').value;
+  const currency=document.getElementById('prox-cur').value;
+  const nota=document.getElementById('prox-nota').value.trim();
+  if(!nombre){showToast('Ingresá un nombre');return;}
+  if(editProximaId){
+    proximas=proximas.map(p=>p.id===editProximaId?{...p,nombre,monto,fecha,categoria,prioridad,currency,nota}:p);
+    showToast('✓ Compra actualizada');
+  } else {
+    proximas.push({id:Date.now(),nombre,monto,fecha,categoria,prioridad,currency,nota,done:false});
+    showToast('✓ Compra agregada');
+  }
+  saveProximas(proximas);closeProximaModal();renderContent();
 }
 
 // ── ACTIONS ──
