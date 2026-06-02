@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Finanzas"/>
+<meta name="apple-mobile-web-app-title" content="Alejo Barbero"/>
 <meta name="theme-color" content="#08080E"/>
-<title>Finanzas</title>
+<title>Alejo Barbero</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -279,7 +279,7 @@ select option{background:#12121E}
   <div class="header">
     <div class="header-top">
       <div>
-        <div class="app-title">FINANZAS</div>
+        <div class="app-title">ALEJO BARBERO</div>
         <div class="app-sub" id="header-sub"></div>
       </div>
       <div class="cur-toggle">
@@ -535,6 +535,9 @@ const CATS = {
 };
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const TODAY = new Date();
+// Parse date string as local date (not UTC) to avoid timezone offset issues
+function parseLocalDate(str){ if(!str) return new Date(); const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d); }
+
 const FMT = (n,cur) => cur==='ARS' ? '$'+n.toLocaleString('es-AR',{minimumFractionDigits:0}) : 'U$D '+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 let state = {
@@ -579,9 +582,9 @@ if(!recurrentes.length){
 // ── HELPERS ──
 function getGoal(){ return goals?.[state.currency]?.[state.year]?.[state.month]||0; }
 function setGoalValue(v){ if(!goals[state.currency])goals[state.currency]={};if(!goals[state.currency][state.year])goals[state.currency][state.year]={};goals[state.currency][state.year][state.month]=v;saveGoals(goals); }
-function filtered(){ return transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===state.month&&d.getFullYear()===state.year&&(state.day===null||d.getDate()===state.day)&&t.currency===state.currency;}); }
+function filtered(){ return transactions.filter(t=>{const d=parseLocalDate(t.date);return d.getMonth()===state.month&&d.getFullYear()===state.year&&(state.day===null||d.getDate()===state.day)&&t.currency===state.currency;}); }
 function summaryFor(list){ const s={ingreso:0,inversion:0,estilo:0,gasto:0};list.forEach(t=>{if(s[t.type]!==undefined)s[t.type]+=t.amount});return s; }
-function daysWithData(){ const set=new Set();transactions.forEach(t=>{const d=new Date(t.date);if(d.getMonth()===state.month&&d.getFullYear()===state.year&&t.currency===state.currency)set.add(d.getDate())});return set; }
+function daysWithData(){ const set=new Set();transactions.forEach(t=>{const d=parseLocalDate(t.date);if(d.getMonth()===state.month&&d.getFullYear()===state.year&&t.currency===state.currency)set.add(d.getDate())});return set; }
 function daysInMonth(){ return new Date(state.year,state.month+1,0).getDate(); }
 function showToast(msg){ const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200); }
 
@@ -624,14 +627,14 @@ function renderDashboard(){
   const suppDone=(suppleLog[getSuppleKey()]||[]).length;
   const suppTotal=suppleList.length;
   const lastW=pesoData.length?pesoData[pesoData.length-1]:null;
-  const txToday=transactions.filter(t=>{const d=new Date(t.date);return d.toDateString()===TODAY.toDateString();}).length;
+  const txToday=transactions.filter(t=>{const d=parseLocalDate(t.date);return d.toDateString()===TODAY.toDateString();}).length;
 
   let html='';
 
   // Previous month comparison
   const prevMonth = state.month===0?11:state.month-1;
   const prevYear = state.month===0?state.year-1:state.year;
-  const prevList = transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===prevMonth&&d.getFullYear()===prevYear&&t.currency===state.currency;});
+  const prevList = transactions.filter(t=>{const d=parseLocalDate(t.date);return d.getMonth()===prevMonth&&d.getFullYear()===prevYear&&t.currency===state.currency;});
   const prevSum = summaryFor(prevList);
   const prevBalance = prevSum.ingreso-prevSum.inversion-prevSum.estilo-prevSum.gasto;
   const prevIngreso = prevSum.ingreso;
@@ -754,7 +757,7 @@ function renderDashboard(){
 
 function renderChart(){
   const monthData=MONTHS.map((_,i)=>{
-    const list=transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===i&&d.getFullYear()===state.year&&t.currency===state.currency;});
+    const list=transactions.filter(t=>{const d=parseLocalDate(t.date);return d.getMonth()===i&&d.getFullYear()===state.year&&t.currency===state.currency;});
     const s=summaryFor(list);
     return{ingreso:s.ingreso,egreso:s.inversion+s.estilo+s.gasto};
   });
@@ -1778,7 +1781,7 @@ function exportPDF(){
 </style>
 </head>
 <body>
-  <h1>FINANZAS</h1>
+  <h1>ALEJO BARBERO</h1>
   <div class="sub">Resumen de ${monthName} · ${state.currency}</div>
   <div class="balance">${balance<0?'−':''}${state.currency==='ARS'?fmtARS(Math.abs(balance)):'U$D '+Math.abs(balance).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
   <div class="tag">${pos?'✓ Balance favorable':'⚠ Balance en rojo'}</div>
@@ -1946,7 +1949,7 @@ function addTransaction(){
   const f=state.form;if(!f.amount||!f.subcat){showToast('Completá categoría y monto');return;}
   const tx={id:Date.now(),type:f.type,subcat:f.subcat,amount:parseFloat(f.amount),currency:f.currency,note:f.note,date:f.date};
   transactions.push(tx);saveTx(transactions);
-  const d=new Date(tx.date);state.month=d.getMonth();state.year=d.getFullYear();state.currency=tx.currency;state.day=null;
+  const d=parseLocalDate(tx.date);state.month=d.getMonth();state.year=d.getFullYear();state.currency=tx.currency;state.day=null;
   state.form={type:'ingreso',subcat:'',amount:'',currency:state.currency,note:'',date:TODAY.toISOString().slice(0,10)};
   state.view='dashboard';render();showToast('✓ Movimiento guardado');
 }
@@ -1964,4 +1967,3 @@ render();
 </script>
 </body>
 </html>
-
